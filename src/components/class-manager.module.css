@@ -1,0 +1,115 @@
+.card {
+  margin-top: 24px;
+  padding: 28px;
+  border: 1px solid #e1e6f0;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 14px 40px rgb(34 49 84 / 7%);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #65708a;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.card h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 1.35rem;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  margin: 24px 0 0;
+  list-style: none;
+}
+
+.list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid #e8ebf2;
+}
+
+.list li > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.list span,
+.muted {
+  color: #65708a;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions button {
+  padding: 8px 11px;
+  border: 0;
+  border-radius: 7px;
+  color: #3764d8;
+  background: #eef2ff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.actions button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.actions .cancel {
+  color: #b42318;
+  background: #fff0ee;
+}
+
+.editor {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 8px;
+  background: #f7f9ff;
+}
+
+.editor label {
+  display: grid;
+  gap: 5px;
+  color: #39445b;
+  font-weight: 600;
+}
+
+.editor input {
+  width: min(100%, 240px);
+  padding: 8px 10px;
+  border: 1px solid #ccd3e0;
+  border-radius: 7px;
+  font: inherit;
+}
+
+.editor p {
+  margin: 0;
+  color: #65708a;
+}
+
+.error {
+  color: #b42318;
+}
+
+@media (max-width: 700px) {
+  .list li {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

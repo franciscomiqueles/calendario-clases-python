@@ -1,0 +1,551 @@
+"use client";
+
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import type { DateSelectArg, EventInput } from "@fullcalendar/core";
+
+import styles from "./public-calendar.module.css";
+import {
+  CLASS_DURATION_MINUTES,
+  intervalsOverlap,
+} from "@/lib/scheduling";
+
+type ScheduleResponse = {
+  name: string;
+  timezone: string;
+  unavailability: Array<{
+    id: string;
+    startAt: string;
+    endAt: string;
+  }>;
+  classes: Array<{
+    id: string;
+    startAt: string;
+    endAt: string;
+  }>;
+};
+
+type SelectedSlot = {
+  id: string;
+  start: Date;
+  end: Date;
+};
+
+type RequestStatus = {
+  requestedStart: string;
+  requestedEnd: string;
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  rejectionReason: string | null;
+  scheduledClass: { status: "CONFIRMED" | "CANCELLED" } | null;
+};
+
+function inputDate(value: Date) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Santiago",
+  }).format(value);
+}
+
+function inputTime(value: Date) {
+  return new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "America/Santiago",
+  }).format(value);
+}
+
+function formatSelection(start: Date, end: Date) {
+  return new Intl.DateTimeFormat("es-CL", {
+    dateStyle: "long",
+    timeStyle: "short",
+    timeZone: "America/Santiago",
+  }).formatRange(start, end);
+}
+
+export function PublicCalendar({ teacherId }: { teacherId: string }) {
+  const [schedule, setSchedule] = useState<ScheduleResponse | null>(null);
+  const [selectedSlots, setSelectedSlots] = useState<SelectedSlot[]>([]);
+  const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
+  const [editingDate, setEditingDate] = useState("");
+  const [editingTime, setEditingTime] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [trackingTokens, setTrackingTokens] = useState<string[]>([]);
+  const [trackingToken, setTrackingToken] = useState("");
+  const [requestStatus, setRequestStatus] = useState<RequestStatus | null>(null);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const adjustingSelection = useRef(false);
+  const noticeRef = useRef<HTMLParagraphElement>(null);
+
+  const loadSchedule = useCallback(async () => {
+    const response = await fetch(`/api/public-schedule?teacherId=${teacherId}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      setError(data.error ?? "No se pudo cargar el calendario.");
+      return;
+    }
+
+    setSchedule(data);
+  }, [teacherId]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadSchedule(), 0);
+    return () => window.clearTimeout(timer);
+  }, [loadSchedule]);
+
+  useEffect(() => {
+    if (!error && !submitted) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setError("");
+      setSubmitted(false);
+    }, 6000);
+
+    return () => window.clearTimeout(timer);
+  }, [error, submitted]);
+
+  useEffect(() => {
+    if (error || submitted) {
+      noticeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [error, submitted]);
+
+  function handleSelect(info: DateSelectArg) {
+    if (adjustingSelection.current) {
+      adjustingSelection.current = false;
+      return;
+    }
+
+    const automaticEnd = new Date(
+      info.start.getTime() + CLASS_DURATION_MINUTES * 60_000,
+    );
+    const dayEnd = new Date(info.start);
+    dayEnd.setHours(21, 0, 0, 0);
+
+    if (automaticEnd > dayEnd) {
+      info.view.calendar.unselect();
+      setSelectedSlots([]);
+      setError("Ese inicio no permite completar una clase antes de las 21:00.");
+      return;
+    }
+
+    const interval = { startAt: info.start, endAt: automaticEnd };
+    const unavailable = [
+      ...(schedule?.unavailability ?? []),
+      ...(schedule?.classes ?? []),
+    ].some((item) =>
+      intervalsOverlap(interval, {
+        startAt: new Date(item.startAt),
+        endAt: new Date(item.endAt),
+      }),
+    );
+    const selectedConflict = selectedSlots.some((slot) =>
+      intervalsOverlap(interval, { startAt: slot.start, endAt: slot.end }),
+    );
+
+    if (unavailable || selectedConflict) {
+      info.view.calendar.unselect();
+      setError(
+        unavailable
+          ? "Ese horario no está disponible."
+          : "Ese horario se solapa con otra selección.",
+      );
+      return;
+    }
+
+    if (info.end.getTime() !== automaticEnd.getTime()) {
+      adjustingSelection.current = true;
+      info.view.calendar.select({
+        start: info.start,
+        end: automaticEnd,
+      });
+    }
+
+    setSelectedSlots((current) => {
+      if (current.some((slot) => slot.start.getTime() === info.start.getTime())) {
+        return current;
+      }
+
+      return [
+        ...current,
+        {
+          id: `${info.start.getTime()}`,
+          start: info.start,
+          end: automaticEnd,
+        },
+      ].sort((first, second) => first.start.getTime() - second.start.getTime());
+    });
+    setSubmitted(false);
+    setError("");
+  }
+
+  async function handleRequest(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+
+    if (selectedSlots.length === 0) {
+      setError("Selecciona al menos un horario en el calendario.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError("");
+    const formData = new FormData(event.currentTarget);
+    const results: Array<{
+      slot: SelectedSlot;
+      response: Response;
+      data: { error?: string; trackingToken?: string };
+    }> = [];
+
+    for (const slot of selectedSlots) {
+      const response = await fetch("/api/booking-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          teacherId,
+          studentName: formData.get("studentName"),
+          studentEmail: formData.get("studentEmail"),
+          comment: formData.get("comment"),
+          requestedStart: slot.start.toISOString(),
+          requestedEnd: slot.end.toISOString(),
+        }),
+      });
+      results.push({ slot, response, data: await response.json() });
+    }
+    const failed = results.filter(({ response }) => !response.ok);
+    const successful = results.filter(({ response }) => response.ok);
+
+    if (successful.length === 0) {
+      setError(
+        failed[0]?.data.error ?? "No se pudieron enviar las solicitudes.",
+      );
+    } else if (failed.length > 0) {
+      setSelectedSlots(failed.map(({ slot }) => slot));
+      setError(
+        `${successful.length} solicitud(es) enviada(s). ${failed.length} no se pudo enviar; revisa los horarios restantes.`,
+      );
+    } else {
+      setSubmitted(true);
+      setTrackingTokens(
+        successful
+          .map(({ data }) => data.trackingToken)
+          .filter((token): token is string => Boolean(token)),
+      );
+      setSelectedSlots([]);
+      form.reset();
+    }
+
+    setIsSubmitting(false);
+  }
+
+  async function checkRequestStatus(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsCheckingStatus(true);
+    setError("");
+    setRequestStatus(null);
+
+    const response = await fetch(
+      `/api/booking-requests/status?teacherId=${encodeURIComponent(
+        teacherId,
+      )}&token=${encodeURIComponent(trackingToken.trim())}`,
+    );
+    const data = await response.json();
+
+    if (!response.ok) {
+      setError(data.error ?? "No se pudo consultar la solicitud.");
+    } else {
+      setRequestStatus(data);
+    }
+
+    setIsCheckingStatus(false);
+  }
+
+  function statusLabel(status: RequestStatus) {
+    if (status.status === "PENDING") return "Pendiente de aprobación";
+    if (status.status === "REJECTED") return "Rechazada";
+    return status.scheduledClass?.status === "CANCELLED"
+      ? "Aceptada, pero la clase fue cancelada"
+      : "Aceptada";
+  }
+
+  function beginEdit(slot: SelectedSlot) {
+    setEditingSlotId(slot.id);
+    setEditingDate(inputDate(slot.start));
+    setEditingTime(inputTime(slot.start));
+  }
+
+  function saveEdit() {
+    if (!editingSlotId || !editingDate || !editingTime) {
+      return;
+    }
+
+    const start = new Date(`${editingDate}T${editingTime}:00`);
+    const end = new Date(start.getTime() + CLASS_DURATION_MINUTES * 60_000);
+    const dayEnd = new Date(start);
+    dayEnd.setHours(21, 0, 0, 0);
+
+    if (end > dayEnd) {
+      setError("Ese inicio no permite completar una clase antes de las 21:00.");
+      return;
+    }
+
+    const conflictsWithSchedule = [
+      ...(schedule?.unavailability ?? []),
+      ...(schedule?.classes ?? []),
+    ].some((item) =>
+      intervalsOverlap(
+        { startAt: start, endAt: end },
+        { startAt: new Date(item.startAt), endAt: new Date(item.endAt) },
+      ),
+    );
+    const conflictsWithSelection = selectedSlots.some(
+      (slot) =>
+        slot.id !== editingSlotId &&
+        intervalsOverlap(
+          { startAt: start, endAt: end },
+          { startAt: slot.start, endAt: slot.end },
+        ),
+    );
+
+    if (conflictsWithSchedule || conflictsWithSelection) {
+      setError(
+        conflictsWithSchedule
+          ? "Ese horario no está disponible."
+          : "Ese horario se solapa con otra selección.",
+      );
+      return;
+    }
+
+    setSelectedSlots((current) =>
+      current
+        .map((slot) =>
+          slot.id === editingSlotId
+            ? { ...slot, id: `${start.getTime()}`, start, end }
+            : slot,
+        )
+        .sort((first, second) => first.start.getTime() - second.start.getTime()),
+    );
+    setEditingSlotId(null);
+    setError("");
+  }
+
+  if (!schedule) {
+    return (
+      <main className={styles.page}>
+        <p className={error ? styles.error : styles.muted}>
+          {error || "Cargando calendario..."}
+        </p>
+      </main>
+    );
+  }
+
+  const blockedEvents: EventInput[] = [
+    ...schedule.unavailability,
+    ...schedule.classes,
+  ].map((item) => ({
+    id: item.id,
+    title: "No disponible",
+    start: item.startAt,
+    end: item.endAt,
+    className: styles.blockedEvent,
+  }));
+  const selectedEvents: EventInput[] = selectedSlots.map((slot) => ({
+    id: slot.id,
+    title: "Seleccionado",
+    start: slot.start,
+    end: slot.end,
+    className: styles.selectedEvent,
+  }));
+
+  return (
+    <main className={styles.page}>
+      <header className={styles.header}>
+        <p className={styles.eyebrow}>Clases de programación</p>
+        <h1>Agenda una clase con {schedule.name}</h1>
+        <p className={styles.description}>
+          Selecciona un intervalo libre de 60 minutos. Las horas disponibles
+          pueden comenzar en cualquier minuto.
+        </p>
+      </header>
+      <section className={styles.card}>
+        {error && (
+          <p ref={noticeRef} className={styles.noticeError} role="alert">
+            {error}
+          </p>
+        )}
+        {submitted && (
+          <p ref={noticeRef} className={styles.noticeSuccess} role="status">
+            Solicitud enviada. Quedará pendiente hasta que la profesora la
+            apruebe.
+            <br />
+            Guarda tu código de seguimiento:{" "}
+            <strong>{trackingTokens.join(", ")}</strong>
+          </p>
+        )}
+        <div className={styles.cardHeader}>
+          <div>
+            <p className={styles.eyebrow}>Calendario público</p>
+            <h2>Elige una hora</h2>
+          </div>
+          <span className={styles.timezone}>{schedule.timezone}</span>
+        </div>
+        <div className={styles.calendar}>
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView="timeGridWeek"
+            headerToolbar={{
+              left: "prev,next today",
+              center: "title",
+              right: "dayGridMonth,timeGridWeek,timeGridDay",
+            }}
+            locale="es"
+            firstDay={1}
+            allDaySlot={false}
+            selectable
+            selectMirror
+            select={handleSelect}
+            selectOverlap={false}
+            slotMinTime="08:00:00"
+            slotMaxTime="21:00:00"
+            slotDuration="00:15:00"
+            slotLabelInterval="01:00:00"
+            snapDuration="00:01:00"
+            height="620px"
+            expandRows
+            events={[...blockedEvents, ...selectedEvents]}
+            eventDisplay="block"
+            eventTimeFormat={{
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }}
+          />
+        </div>
+        {selectedSlots.length > 0 && (
+          <div className={styles.selection}>
+            <strong>Horarios seleccionados ({selectedSlots.length})</strong>
+            <ul className={styles.selectedList}>
+              {selectedSlots.map((slot) => (
+                <li key={slot.id}>
+                  <span>{formatSelection(slot.start, slot.end)}</span>
+                  <div className={styles.slotActions}>
+                    <button type="button" onClick={() => beginEdit(slot)}>
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedSlots((current) =>
+                          current.filter((item) => item.id !== slot.id),
+                        )
+                      }
+                    >
+                      Quitar
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {editingSlotId && (
+              <div className={styles.slotEditor}>
+                <label>
+                  Día
+                  <input
+                    type="date"
+                    value={editingDate}
+                    onChange={(event) => setEditingDate(event.target.value)}
+                  />
+                </label>
+                <label>
+                  Hora de inicio
+                  <input
+                    type="time"
+                    value={editingTime}
+                    onChange={(event) => setEditingTime(event.target.value)}
+                  />
+                </label>
+                <p>El término se calculará automáticamente 60 minutos después.</p>
+                <div className={styles.slotActions}>
+                  <button type="button" onClick={saveEdit}>
+                    Guardar horario
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingSlotId(null)}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
+            <form className={styles.requestForm} onSubmit={handleRequest}>
+              <label>
+                Tu nombre
+                <input name="studentName" required maxLength={100} />
+              </label>
+              <label>
+                Tu correo electrónico
+                <input name="studentEmail" type="email" required />
+              </label>
+              <label>
+                Comentario (opcional)
+                <textarea name="comment" maxLength={500} rows={3} />
+              </label>
+              <button
+                type="submit"
+                disabled={
+                  isSubmitting ||
+                  selectedSlots.length === 0
+                }
+              >
+                {isSubmitting ? "Enviando..." : "Enviar solicitud"}
+              </button>
+            </form>
+          </div>
+        )}
+      </section>
+      <section className={styles.statusCard}>
+        <p className={styles.eyebrow}>Seguimiento</p>
+        <h2>Consulta tu solicitud</h2>
+        <p className={styles.statusDescription}>
+          Usa el código que recibiste al enviarla.
+        </p>
+        <form className={styles.statusForm} onSubmit={checkRequestStatus}>
+          <label>
+            Código de seguimiento
+            <input
+              value={trackingToken}
+              onChange={(event) => setTrackingToken(event.target.value)}
+              required
+              spellCheck={false}
+            />
+          </label>
+          <button type="submit" disabled={isCheckingStatus}>
+            {isCheckingStatus ? "Consultando..." : "Consultar estado"}
+          </button>
+        </form>
+        {requestStatus && (
+          <div className={styles.statusResult} role="status">
+            <strong>{statusLabel(requestStatus)}</strong>
+            <span>
+              {formatSelection(
+                new Date(requestStatus.requestedStart),
+                new Date(requestStatus.requestedEnd),
+              )}
+            </span>
+            {requestStatus.rejectionReason && (
+              <span>Motivo: {requestStatus.rejectionReason}</span>
+            )}
+          </div>
+        )}
+      </section>
+    </main>
+  );
+}

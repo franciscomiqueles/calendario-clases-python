@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum ClassStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id           String               @id @default(cuid())
+  name         String
+  email        String               @unique
+  passwordHash String
+  timezone     String               @default("America/Santiago")
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  unavailability UnavailabilityWindow[]
+  requests       BookingRequest[]
+  classes        ScheduledClass[]
+}
+
+model UnavailabilityWindow {
+  id        String   @id @default(cuid())
+  teacherId String
+  startAt   DateTime
+  endAt     DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  teacher   User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId, startAt])
+}
+
+model BookingRequest {
+  id              String        @id @default(cuid())
+  trackingToken   String        @unique @default(cuid())
+  teacherId       String
+  studentName     String
+  studentEmail    String
+  requestedStart  DateTime
+  requestedEnd    DateTime
+  comment         String?
+  status          RequestStatus @default(PENDING)
+  rejectionReason String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  teacher         User          @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  scheduledClass  ScheduledClass?
+
+  @@index([teacherId, status, requestedStart])
+}
+
+model ScheduledClass {
+  id         String      @id @default(cuid())
+  teacherId  String
+  requestId  String      @unique
+  studentName String
+  studentEmail String
+  startAt    DateTime
+  endAt      DateTime
+  status     ClassStatus @default(CONFIRMED)
+  privateNote String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  teacher    User        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  request    BookingRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+
+  @@index([teacherId, status, startAt])
+}

@@ -1,0 +1,154 @@
+.card {
+  margin-top: 24px;
+  padding: 28px;
+  border: 1px solid #e1e6f0;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 14px 40px rgb(34 49 84 / 7%);
+}
+
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #65708a;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.heading h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 1.35rem;
+}
+
+.count {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  color: #245c48;
+  background: #dff4e9;
+  font-weight: 700;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  margin: 24px 0 0;
+  list-style: none;
+}
+
+.list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid #e8ebf2;
+}
+
+.list li > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.list strong {
+  color: #172033;
+}
+
+.list span,
+.list small,
+.muted {
+  color: #65708a;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions button {
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 7px;
+  color: #245c48;
+  background: #dff4e9;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.actions .reject {
+  color: #b42318;
+  background: #fff0ee;
+}
+
+.error {
+  color: #b42318;
+}
+
+.success {
+  color: #245c48;
+}
+
+.history {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e8ebf2;
+}
+
+.historyHeading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.historyHeading::-webkit-details-marker {
+  display: none;
+}
+
+.historyHeading h3 {
+  margin: 0;
+  color: #172033;
+  font-size: 1.05rem;
+}
+
+.historyCount {
+  color: #65708a;
+  font-size: 0.9rem;
+}
+
+.accepted,
+.rejected {
+  font-weight: 700;
+}
+
+.accepted {
+  color: #245c48;
+}
+
+.rejected {
+  color: #b42318;
+}
+
+@media (max-width: 700px) {
+  .list li {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
