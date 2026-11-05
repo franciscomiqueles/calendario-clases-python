@@ -34,9 +34,9 @@ async function DashboardContent() {
         </a>
       </p>
       <CalendarView />
-      <AvailabilityManager />
       <RequestManager />
       <ClassManager />
+      <AvailabilityManager />
     </main>
   );
 }

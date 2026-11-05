@@ -29,7 +29,7 @@ export function AvailabilityManager() {
   const [unavailability, setUnavailability] = useState<Unavailability[]>([]);
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("08:00");
-  const [endTime, setEndTime] = useState("21:00");
+  const [endTime, setEndTime] = useState("19:30");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

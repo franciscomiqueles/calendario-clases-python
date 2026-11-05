@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { deleteExpiredAcceptedBookings } from "@/lib/booking-requests";
 
 export async function GET(request: Request) {
   const teacherId = new URL(request.url).searchParams.get("teacherId");
@@ -13,6 +14,8 @@ export async function GET(request: Request) {
   }
 
   try {
+    await deleteExpiredAcceptedBookings(teacherId);
+
     const teacher = await prisma.user.findUnique({
       where: { id: teacherId },
       select: {

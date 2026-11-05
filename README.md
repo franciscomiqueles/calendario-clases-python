@@ -82,10 +82,10 @@ La lógica de agenda ya contempla:
 - Clases consecutivas sin solapamiento.
 - Rechazo de intervalos fuera de una ventana de disponibilidad.
 
-El panel privado muestra un calendario interactivo. El horario base de
-`08:00` a `21:00` está disponible por defecto; la profesora solo debe agregar
-bloqueos para indicar excepciones no disponibles. Los minutos arbitrarios como
-`10:07` o `18:05` se conservan.
+El panel privado muestra un calendario interactivo. El horario base de lunes a
+viernes es de `08:00` a `19:30`, y sábados y domingos de `10:00` a `23:00`.
+La profesora solo debe agregar bloqueos para indicar excepciones no
+disponibles. Los minutos arbitrarios como `10:07` o `18:05` se conservan.
 
 El calendario público permite seleccionar una clase de 60 minutos y enviar
 una solicitud pendiente. El servidor vuelve a validar bloqueos y conflictos
@@ -115,7 +115,12 @@ La profesora puede editar o cancelar clases confirmadas desde el dashboard.
 Los cambios se validan contra bloqueos y otras clases antes de guardarse.
 
 El dashboard también conserva un historial de solicitudes aceptadas y
-rechazadas, incluyendo el motivo de rechazo cuando fue indicado.
+rechazadas, incluyendo el motivo de rechazo cuando fue indicado. Las
+solicitudes rechazadas pueden eliminarse individualmente; las aceptadas se
+conservan porque están vinculadas a sus clases hasta que pasa la fecha de la
+clase; después se eliminan automáticamente junto con la clase al consultar el
+dashboard o cualquiera de los calendarios. Las solicitudes pendientes se
+conservan aunque su fecha haya pasado.
 
 Cada solicitud pública entrega un código de seguimiento. El alumno puede
 usarlo en el mismo enlace público para consultar si está pendiente, aceptada,

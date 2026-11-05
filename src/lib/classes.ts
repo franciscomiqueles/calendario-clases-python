@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { isClassDurationValid } from "@/lib/scheduling";
+import {
+  DEFAULT_TIMEZONE,
+  isClassDurationValid,
+  isWithinScheduleWindow,
+} from "@/lib/scheduling";
 import { timeWindowSchema } from "@/lib/validation";
 
 export async function listConfirmedClasses(teacherId: string) {
@@ -18,6 +22,20 @@ export async function updateClass(
 
   if (!parsed.success || !isClassDurationValid(parsed.data)) {
     throw new Error("La clase debe durar exactamente 60 minutos.");
+  }
+
+  const teacher = await prisma.user.findUnique({
+    where: { id: teacherId },
+    select: { timezone: true },
+  });
+
+  if (
+    !isWithinScheduleWindow(
+      parsed.data,
+      teacher?.timezone || DEFAULT_TIMEZONE,
+    )
+  ) {
+    throw new Error("El nuevo horario está fuera del horario disponible.");
   }
 
   const current = await prisma.scheduledClass.findFirst({

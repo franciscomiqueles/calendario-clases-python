@@ -92,9 +92,13 @@ export function CalendarView() {
           firstDay={1}
           allDaySlot={false}
           slotMinTime="08:00:00"
-          slotMaxTime="21:00:00"
+          slotMaxTime="23:00:00"
           slotDuration="00:15:00"
           slotLabelInterval="01:00:00"
+          businessHours={[
+            { daysOfWeek: [1, 2, 3, 4, 5], startTime: "08:00", endTime: "19:30" },
+            { daysOfWeek: [0, 6], startTime: "10:00", endTime: "23:00" },
+          ]}
           height="620px"
           expandRows
           events={events}

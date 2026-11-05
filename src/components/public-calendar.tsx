@@ -10,6 +10,9 @@ import type { DateSelectArg, EventInput } from "@fullcalendar/core";
 import styles from "./public-calendar.module.css";
 import {
   CLASS_DURATION_MINUTES,
+  DEFAULT_TIMEZONE,
+  dateInTimeZone,
+  getScheduleWindow,
   intervalsOverlap,
 } from "@/lib/scheduling";
 
@@ -80,6 +83,7 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
   const [error, setError] = useState("");
   const adjustingSelection = useRef(false);
   const noticeRef = useRef<HTMLParagraphElement>(null);
+  const today = dateInTimeZone(new Date(), schedule?.timezone ?? DEFAULT_TIMEZONE);
 
   const loadSchedule = useCallback(async () => {
     const response = await fetch(`/api/public-schedule?teacherId=${teacherId}`);
@@ -99,19 +103,6 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
   }, [loadSchedule]);
 
   useEffect(() => {
-    if (!error && !submitted) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      setError("");
-      setSubmitted(false);
-    }, 6000);
-
-    return () => window.clearTimeout(timer);
-  }, [error, submitted]);
-
-  useEffect(() => {
     if (error || submitted) {
       noticeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -126,13 +117,18 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
     const automaticEnd = new Date(
       info.start.getTime() + CLASS_DURATION_MINUTES * 60_000,
     );
+    const window = getScheduleWindow(info.start, schedule?.timezone);
     const dayEnd = new Date(info.start);
-    dayEnd.setHours(21, 0, 0, 0);
+    dayEnd.setHours(window.endHour, window.endMinute, 0, 0);
 
     if (automaticEnd > dayEnd) {
       info.view.calendar.unselect();
       setSelectedSlots([]);
-      setError("Ese inicio no permite completar una clase antes de las 21:00.");
+      setError(
+        `Ese inicio no permite completar una clase antes de las ${String(
+          window.endHour,
+        ).padStart(2, "0")}:${String(window.endMinute).padStart(2, "0")}.`,
+      );
       return;
     }
 
@@ -223,15 +219,18 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
     const successful = results.filter(({ response }) => response.ok);
 
     if (successful.length === 0) {
+      setSubmitted(false);
       setError(
         failed[0]?.data.error ?? "No se pudieron enviar las solicitudes.",
       );
     } else if (failed.length > 0) {
+      setSubmitted(false);
       setSelectedSlots(failed.map(({ slot }) => slot));
       setError(
         `${successful.length} solicitud(es) enviada(s). ${failed.length} no se pudo enviar; revisa los horarios restantes.`,
       );
     } else {
+      setError("");
       setSubmitted(true);
       setTrackingTokens(
         successful
@@ -288,11 +287,16 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
 
     const start = new Date(`${editingDate}T${editingTime}:00`);
     const end = new Date(start.getTime() + CLASS_DURATION_MINUTES * 60_000);
+    const window = getScheduleWindow(start, schedule?.timezone);
     const dayEnd = new Date(start);
-    dayEnd.setHours(21, 0, 0, 0);
+    dayEnd.setHours(window.endHour, window.endMinute, 0, 0);
 
     if (end > dayEnd) {
-      setError("Ese inicio no permite completar una clase antes de las 21:00.");
+      setError(
+        `Ese inicio no permite completar una clase antes de las ${String(
+          window.endHour,
+        ).padStart(2, "0")}:${String(window.endMinute).padStart(2, "0")}.`,
+      );
       return;
     }
 
@@ -363,6 +367,7 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
     end: slot.end,
     className: styles.selectedEvent,
   }));
+  const timezone = schedule.timezone || DEFAULT_TIMEZONE;
 
   return (
     <main className={styles.page}>
@@ -413,10 +418,29 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
             select={handleSelect}
             selectOverlap={false}
             slotMinTime="08:00:00"
-            slotMaxTime="21:00:00"
+            slotMaxTime="23:00:00"
             slotDuration="00:15:00"
             slotLabelInterval="01:00:00"
             snapDuration="00:01:00"
+            validRange={{ start: today }}
+            businessHours={[
+              { daysOfWeek: [1, 2, 3, 4, 5], startTime: "08:00", endTime: "19:30" },
+              { daysOfWeek: [0, 6], startTime: "10:00", endTime: "23:00" },
+            ]}
+            selectAllow={(selection) => {
+              const startWindow = getScheduleWindow(selection.start, timezone);
+              const endWindow = getScheduleWindow(selection.end, timezone);
+              const startMinutes =
+                selection.start.getHours() * 60 + selection.start.getMinutes();
+              const endMinutes =
+                selection.end.getHours() * 60 + selection.end.getMinutes();
+              return (
+                startWindow.startHour * 60 + startWindow.startMinute <=
+                  startMinutes &&
+                endWindow.endHour * 60 + endWindow.endMinute >= endMinutes &&
+                startWindow.startHour === endWindow.startHour
+              );
+            }}
             height="620px"
             expandRows
             events={[...blockedEvents, ...selectedEvents]}

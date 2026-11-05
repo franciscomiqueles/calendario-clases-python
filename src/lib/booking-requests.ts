@@ -1,7 +1,14 @@
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
-import { isClassDurationValid, type TimeInterval } from "@/lib/scheduling";
+import {
+  DEFAULT_TIMEZONE,
+  isBeforeTodayInTimeZone,
+  isClassDurationValid,
+  isWithinScheduleWindow,
+  startOfTodayInTimeZone,
+  type TimeInterval,
+} from "@/lib/scheduling";
 import { bookingRequestSchema } from "@/lib/validation";
 
 export async function createBookingRequest(teacherId: string, input: unknown) {
@@ -23,6 +30,33 @@ export async function createBookingRequest(teacherId: string, input: unknown) {
   try {
     return await prisma.$transaction(
       async (transaction) => {
+        const teacher = await transaction.user.findUnique({
+          where: { id: teacherId },
+          select: { timezone: true },
+        });
+
+        if (!teacher) {
+          throw new Error("No se encontró la profesora.");
+        }
+
+        if (
+          isBeforeTodayInTimeZone(
+            interval.startAt,
+            teacher.timezone || DEFAULT_TIMEZONE,
+          )
+        ) {
+          throw new Error("No se pueden solicitar fechas anteriores a hoy.");
+        }
+
+        if (
+          !isWithinScheduleWindow(
+            interval,
+            teacher.timezone || DEFAULT_TIMEZONE,
+          )
+        ) {
+          throw new Error("El horario seleccionado está fuera del horario disponible.");
+        }
+
         const blocked = await transaction.unavailabilityWindow.findFirst({
           where: {
             teacherId,
@@ -90,12 +124,44 @@ export async function listPendingRequests(teacherId: string) {
 }
 
 export async function listRequestHistory(teacherId: string) {
+  await deleteExpiredAcceptedBookings(teacherId);
+
   return prisma.bookingRequest.findMany({
     where: {
       teacherId,
       status: { in: ["ACCEPTED", "REJECTED"] },
     },
     orderBy: { updatedAt: "desc" },
+  });
+}
+
+export async function deleteExpiredAcceptedBookings(teacherId: string) {
+  const teacher = await prisma.user.findUnique({
+    where: { id: teacherId },
+    select: { timezone: true },
+  });
+
+  if (!teacher) {
+    return;
+  }
+
+  const cutoff = startOfTodayInTimeZone(teacher.timezone || DEFAULT_TIMEZONE);
+
+  await prisma.$transaction(async (transaction) => {
+    await transaction.scheduledClass.deleteMany({
+      where: {
+        teacherId,
+        startAt: { lt: cutoff },
+      },
+    });
+
+    await transaction.bookingRequest.deleteMany({
+      where: {
+        teacherId,
+        status: "ACCEPTED",
+        requestedStart: { lt: cutoff },
+      },
+    });
   });
 }
 
@@ -124,6 +190,31 @@ export async function acceptBookingRequest(teacherId: string, requestId: string)
 
       if (!request) {
         throw new Error("La solicitud no existe o ya fue gestionada.");
+      }
+
+      const teacher = await transaction.user.findUnique({
+        where: { id: teacherId },
+        select: { timezone: true },
+      });
+
+      if (
+        teacher &&
+        isBeforeTodayInTimeZone(
+          request.requestedStart,
+          teacher.timezone || DEFAULT_TIMEZONE,
+        )
+      ) {
+        throw new Error("No se pueden aceptar solicitudes de fechas anteriores a hoy.");
+      }
+
+      if (
+        teacher &&
+        !isWithinScheduleWindow(
+          { startAt: request.requestedStart, endAt: request.requestedEnd },
+          teacher.timezone || DEFAULT_TIMEZONE,
+        )
+      ) {
+        throw new Error("El horario solicitado está fuera del horario disponible.");
       }
 
       const blocked = await transaction.unavailabilityWindow.findFirst({
@@ -210,4 +301,17 @@ export async function rejectBookingRequest(
       rejectionReason: rejectionReason?.trim() || null,
     },
   });
+}
+
+export async function deleteRejectedRequest(
+  teacherId: string,
+  requestId: string,
+) {
+  const result = await prisma.bookingRequest.deleteMany({
+    where: { id: requestId, teacherId, status: "REJECTED" },
+  });
+
+  if (result.count === 0) {
+    throw new Error("Solo se pueden eliminar solicitudes rechazadas.");
+  }
 }

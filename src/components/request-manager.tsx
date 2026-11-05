@@ -32,6 +32,9 @@ export function RequestManager() {
   const [updatingRequestId, setUpdatingRequestId] = useState<string | null>(
     null,
   );
+  const [deletingRequestId, setDeletingRequestId] = useState<string | null>(
+    null,
+  );
 
   const loadRequests = useCallback(async () => {
     const [pendingResponse, historyResponse] = await Promise.all([
@@ -80,6 +83,34 @@ export function RequestManager() {
       window.dispatchEvent(new Event("schedule-changed"));
     } finally {
       setUpdatingRequestId(null);
+    }
+  }
+
+  async function deleteRequest(request: BookingRequest) {
+    if (
+      !window.confirm(
+        `¿Eliminar la solicitud rechazada de ${request.studentName}?`,
+      )
+    ) {
+      return;
+    }
+
+    setDeletingRequestId(request.id);
+    try {
+      const response = await fetch(`/api/booking-requests/${request.id}`, {
+        method: "DELETE",
+      });
+      const data = response.status === 204 ? null : await response.json();
+
+      if (!response.ok) {
+        setError(data?.error ?? "No se pudo eliminar la solicitud.");
+        return;
+      }
+
+      await loadRequests();
+      setSuccess("Solicitud eliminada.");
+    } finally {
+      setDeletingRequestId(null);
     }
   }
 
@@ -170,6 +201,18 @@ export function RequestManager() {
                   >
                     {request.status === "ACCEPTED" ? "Aceptada" : "Rechazada"}
                   </span>
+                  {request.status === "REJECTED" && (
+                    <button
+                      type="button"
+                      className={styles.delete}
+                      disabled={deletingRequestId === request.id}
+                      onClick={() => void deleteRequest(request)}
+                    >
+                      {deletingRequestId === request.id
+                        ? "Eliminando..."
+                        : "Eliminar"}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

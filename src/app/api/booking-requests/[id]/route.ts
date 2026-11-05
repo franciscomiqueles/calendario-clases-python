@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import {
   acceptBookingRequest,
+  deleteRejectedRequest,
   rejectBookingRequest,
 } from "@/lib/booking-requests";
 
@@ -29,5 +30,23 @@ export async function PATCH(request: Request, context: RouteContext) {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Operación inválida.";
     return NextResponse.json({ error: message }, { status: 409 });
+  }
+}
+
+export async function DELETE(_: Request, context: RouteContext) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
+  }
+
+  try {
+    const { id } = await context.params;
+    await deleteRejectedRequest(session.user.id, id);
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "No se pudo eliminar la solicitud.";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

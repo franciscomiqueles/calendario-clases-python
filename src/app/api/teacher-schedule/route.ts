@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 import { authOptions } from "@/lib/auth";
+import { deleteExpiredAcceptedBookings } from "@/lib/booking-requests";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
@@ -10,6 +11,8 @@ export async function GET() {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
+
+  await deleteExpiredAcceptedBookings(session.user.id);
 
   const [unavailability, classes] = await Promise.all([
     prisma.unavailabilityWindow.findMany({
