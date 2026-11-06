@@ -247,13 +247,13 @@ export async function acceptBookingRequest(teacherId: string, requestId: string)
 
       await transaction.scheduledClass.create({
         data: {
-          teacherId,
-          requestId,
           studentName: request.studentName,
           studentEmail: request.studentEmail,
           studentPhone: request.studentPhone,
           startAt: request.requestedStart,
           endAt: request.requestedEnd,
+          teacher: { connect: { id: teacherId } },
+          request: { connect: { id: requestId } },
         },
       });
 
