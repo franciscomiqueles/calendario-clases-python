@@ -20,7 +20,10 @@ export const bookingRequestSchema = z.object({
     .trim()
     .min(1, "El nombre es obligatorio.")
     .max(100, "El nombre no puede superar los 100 caracteres."),
-  studentEmail: z.email("Debes indicar un correo electrónico válido."),
+  studentPhone: z
+    .string()
+    .trim()
+    .regex(/^\+\d{7,15}$/, "Debes indicar un número de teléfono válido."),
   requestedStart: dateTime,
   requestedEnd: dateTime,
   comment: z

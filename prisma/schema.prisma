@@ -47,7 +47,8 @@ model BookingRequest {
   trackingToken   String        @unique @default(cuid())
   teacherId       String
   studentName     String
-  studentEmail    String
+  studentEmail    String?
+  studentPhone    String               @default("")
   requestedStart  DateTime
   requestedEnd    DateTime
   comment         String?
@@ -66,7 +67,8 @@ model ScheduledClass {
   teacherId  String
   requestId  String      @unique
   studentName String
-  studentEmail String
+  studentEmail String?
+  studentPhone String               @default("")
   startAt    DateTime
   endAt      DateTime
   status     ClassStatus @default(CONFIRMED)

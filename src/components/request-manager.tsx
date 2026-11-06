@@ -7,7 +7,8 @@ import styles from "./request-manager.module.css";
 type BookingRequest = {
   id: string;
   studentName: string;
-  studentEmail: string;
+  studentPhone: string;
+  studentEmail: string | null;
   requestedStart: string;
   requestedEnd: string;
   comment: string | null;
@@ -135,7 +136,7 @@ export function RequestManager() {
             <li key={request.id}>
               <div>
                 <strong>{request.studentName}</strong>
-                <span>{request.studentEmail}</span>
+                <span>{request.studentPhone || request.studentEmail}</span>
                 <span>
                   {formatDate(request.requestedStart)} -{" "}
                   {new Intl.DateTimeFormat("es-CL", {
@@ -180,7 +181,7 @@ export function RequestManager() {
                 <li key={request.id}>
                   <div>
                     <strong>{request.studentName}</strong>
-                    <span>{request.studentEmail}</span>
+                    <span>{request.studentPhone || request.studentEmail}</span>
                     <span>
                       {formatDate(request.requestedStart)} -{" "}
                       {new Intl.DateTimeFormat("es-CL", {

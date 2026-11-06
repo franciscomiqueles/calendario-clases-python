@@ -45,6 +45,18 @@ type RequestStatus = {
   scheduledClass: { status: "CONFIRMED" | "CANCELLED" } | null;
 };
 
+const PHONE_CODES = [
+  ["+56", "Chile"],
+  ["+54", "Argentina"],
+  ["+51", "Perú"],
+  ["+591", "Bolivia"],
+  ["+55", "Brasil"],
+  ["+57", "Colombia"],
+  ["+52", "México"],
+  ["+1", "Estados Unidos / Canadá"],
+  ["+34", "España"],
+] as const;
+
 function inputDate(value: Date) {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Santiago",
@@ -207,7 +219,9 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
         body: JSON.stringify({
           teacherId,
           studentName: formData.get("studentName"),
-          studentEmail: formData.get("studentEmail"),
+          studentPhone: `${formData.get("countryCode")}${String(
+            formData.get("studentPhone"),
+          ).replace(/\D/g, "")}`,
           comment: formData.get("comment"),
           requestedStart: slot.start.toISOString(),
           requestedEnd: slot.end.toISOString(),
@@ -514,9 +528,24 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
                 Tu nombre
                 <input name="studentName" required maxLength={100} />
               </label>
-              <label>
-                Tu correo electrónico
-                <input name="studentEmail" type="email" required />
+              <label className={styles.phoneLabel}>
+                Tu teléfono
+                <span className={styles.phoneFields}>
+                  <select name="countryCode" defaultValue="+56" aria-label="Código de país">
+                    {PHONE_CODES.map(([code, country]) => (
+                      <option key={code} value={code}>
+                        {code} ({country})
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    name="studentPhone"
+                    type="tel"
+                    inputMode="numeric"
+                    placeholder="9 1234 5678"
+                    required
+                  />
+                </span>
               </label>
               <label>
                 Comentario (opcional)

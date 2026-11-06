@@ -66,6 +66,37 @@ export function dateInTimeZone(value: Date, timeZone: string): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone }).format(value);
 }
 
+export function zonedDateTimeToIso(
+  date: string,
+  time: string,
+  timeZone = DEFAULT_TIMEZONE,
+): string {
+  const utcGuess = new Date(`${date}T${time}:00.000Z`);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(utcGuess);
+  const get = (type: string) =>
+    Number(parts.find((part) => part.type === type)?.value);
+  const localAsUtc = Date.UTC(
+    get("year"),
+    get("month") - 1,
+    get("day"),
+    get("hour"),
+    get("minute"),
+    get("second"),
+  );
+  const offset = localAsUtc - utcGuess.getTime();
+
+  return new Date(utcGuess.getTime() - offset).toISOString();
+}
+
 export function startOfTodayInTimeZone(
   timeZone = DEFAULT_TIMEZONE,
   now = new Date(),

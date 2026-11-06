@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
+import { zonedDateTimeToIso } from "@/lib/scheduling";
 import styles from "./availability-manager.module.css";
 
 type Unavailability = {
@@ -72,8 +73,8 @@ export function AvailabilityManager() {
           method: editingId ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            startAt: `${date}T${startTime}:00`,
-            endAt: `${date}T${endTime}:00`,
+            startAt: zonedDateTimeToIso(date, startTime),
+            endAt: zonedDateTimeToIso(date, endTime),
           }),
         },
       );

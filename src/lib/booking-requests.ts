@@ -98,7 +98,7 @@ export async function createBookingRequest(teacherId: string, input: unknown) {
           data: {
             teacherId,
             studentName: parsed.data.studentName,
-            studentEmail: parsed.data.studentEmail.toLowerCase(),
+            studentPhone: parsed.data.studentPhone,
             requestedStart: interval.startAt,
             requestedEnd: interval.endAt,
             comment: parsed.data.comment || null,
@@ -251,6 +251,7 @@ export async function acceptBookingRequest(teacherId: string, requestId: string)
           requestId,
           studentName: request.studentName,
           studentEmail: request.studentEmail,
+          studentPhone: request.studentPhone,
           startAt: request.requestedStart,
           endAt: request.requestedEnd,
         },

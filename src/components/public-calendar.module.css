@@ -222,6 +222,22 @@
   font: inherit;
 }
 
+.phoneFields {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.8fr) minmax(0, 1.2fr);
+  gap: 8px;
+}
+
+.phoneFields select {
+  min-width: 0;
+  padding: 10px 8px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+}
+
 .requestForm button {
   width: fit-content;
   padding: 11px 16px;

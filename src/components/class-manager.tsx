@@ -7,7 +7,8 @@ import styles from "./class-manager.module.css";
 type ConfirmedClass = {
   id: string;
   studentName: string;
-  studentEmail: string;
+  studentPhone: string;
+  studentEmail: string | null;
   startAt: string;
   endAt: string;
 };
@@ -130,7 +131,7 @@ export function ClassManager() {
             <li key={item.id}>
               <div>
                 <strong>{item.studentName}</strong>
-                <span>{item.studentEmail}</span>
+                <span>{item.studentPhone || item.studentEmail}</span>
                 <span>{formatDate(item.startAt)} - {fieldTime(item.endAt)}</span>
               </div>
               <div className={styles.actions}>

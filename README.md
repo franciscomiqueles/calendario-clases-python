@@ -101,6 +101,10 @@ La interfaz permite seleccionar varias clases antes de enviar el formulario.
 Cada horario se guarda como una solicitud independiente para que puedan ser
 aceptadas o rechazadas por separado.
 
+Las solicitudes públicas solicitan un teléfono con código internacional,
+preseleccionado en `+56` para Chile. Se conservan las columnas antiguas de
+correo como compatibilidad con registros creados antes de este cambio.
+
 La profesora puede revisar las solicitudes pendientes desde el dashboard y
 aceptarlas o rechazarlas individualmente. Al aceptar una solicitud se crea
 una clase confirmada mediante una transacción.
