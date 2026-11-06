@@ -1,10 +1,10 @@
 .card {
   margin-top: 24px;
   padding: 28px;
-  border: 1px solid #e1e6f0;
+  border: 2px solid var(--ink);
   border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 14px 40px rgb(34 49 84 / 7%);
+  background: #fff6cf;
+  box-shadow: 6px 6px 0 var(--ink);
 }
 
 .heading {
@@ -15,7 +15,7 @@
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #65708a;
+  color: var(--ink);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -24,7 +24,7 @@
 
 .heading h2 {
   margin: 0;
-  color: #172033;
+  color: var(--ink);
   font-size: 1.35rem;
 }
 
@@ -34,8 +34,9 @@
   height: 32px;
   place-items: center;
   border-radius: 50%;
-  color: #245c48;
-  background: #dff4e9;
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  background: var(--yellow);
   font-weight: 700;
 }
 
@@ -53,7 +54,7 @@
   justify-content: space-between;
   gap: 20px;
   padding: 16px 0;
-  border-bottom: 1px solid #e8ebf2;
+  border-bottom: 2px solid rgb(23 23 23 / 25%);
 }
 
 .list li > div:first-child {
@@ -62,13 +63,13 @@
 }
 
 .list strong {
-  color: #172033;
+  color: var(--ink);
 }
 
 .list span,
 .list small,
 .muted {
-  color: #65708a;
+  color: var(--ink);
 }
 
 .actions {
@@ -78,10 +79,10 @@
 
 .actions button {
   padding: 9px 12px;
-  border: 0;
+  border: 2px solid var(--ink);
   border-radius: 7px;
-  color: #245c48;
-  background: #dff4e9;
+  color: var(--ink);
+  background: var(--green);
   cursor: pointer;
   font-weight: 700;
 }
@@ -92,22 +93,22 @@
 }
 
 .actions .reject {
-  color: #b42318;
-  background: #fff0ee;
+  color: var(--ink);
+  background: var(--coral);
 }
 
 .error {
-  color: #b42318;
+  color: var(--error);
 }
 
 .success {
-  color: #245c48;
+  color: var(--ink);
 }
 
 .history {
   margin-top: 32px;
   padding-top: 24px;
-  border-top: 1px solid #e8ebf2;
+  border-top: 2px solid rgb(23 23 23 / 25%);
 }
 
 .historyHeading {
@@ -124,12 +125,12 @@
 
 .historyHeading h3 {
   margin: 0;
-  color: #172033;
+  color: var(--ink);
   font-size: 1.05rem;
 }
 
 .historyCount {
-  color: #65708a;
+  color: var(--ink);
   font-size: 0.9rem;
 }
 
@@ -139,19 +140,19 @@
 }
 
 .accepted {
-  color: #245c48;
+  color: var(--ink);
 }
 
 .rejected {
-  color: #b42318;
+  color: var(--error);
 }
 
 .delete {
   padding: 8px 11px;
-  border: 0;
+  border: 2px solid var(--ink);
   border-radius: 7px;
-  color: #b42318;
-  background: #fff0ee;
+  color: var(--ink);
+  background: var(--coral);
   cursor: pointer;
   font-weight: 700;
 }

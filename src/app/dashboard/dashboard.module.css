@@ -8,7 +8,7 @@
 
 .identity p {
   margin: 0;
-  color: #65708a;
+  color: var(--ink);
 }
 
 .identity .eyebrow {
@@ -17,6 +17,8 @@
 
 .identity h1 {
   margin: 8px 0 4px;
+  color: var(--coral);
+  text-shadow: 2px 2px 0 var(--ink);
 }
 
 @media (max-width: 600px) {

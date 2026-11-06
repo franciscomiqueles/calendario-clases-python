@@ -1,15 +1,15 @@
 .card {
   margin-top: 24px;
   padding: 28px;
-  border: 1px solid #e1e6f0;
+  border: 2px solid var(--ink);
   border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 14px 40px rgb(34 49 84 / 7%);
+  background: var(--green);
+  box-shadow: 6px 6px 0 var(--ink);
 }
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #65708a;
+  color: var(--ink);
   font-size: .75rem;
   font-weight: 700;
   letter-spacing: .1em;
@@ -18,7 +18,7 @@
 
 .card h2 {
   margin: 0;
-  color: #172033;
+  color: var(--ink);
   font-size: 1.35rem;
 }
 
@@ -36,7 +36,7 @@
   justify-content: space-between;
   gap: 20px;
   padding: 16px 0;
-  border-bottom: 1px solid #e8ebf2;
+  border-bottom: 2px solid rgb(23 23 23 / 25%);
 }
 
 .list li > div:first-child {
@@ -46,7 +46,7 @@
 
 .list span,
 .muted {
-  color: #65708a;
+  color: var(--ink);
 }
 
 .actions {
@@ -56,10 +56,10 @@
 
 .actions button {
   padding: 8px 11px;
-  border: 0;
+  border: 2px solid var(--ink);
   border-radius: 7px;
-  color: #3764d8;
-  background: #eef2ff;
+  color: var(--ink);
+  background: var(--yellow);
   cursor: pointer;
   font-weight: 700;
 }
@@ -70,8 +70,8 @@
 }
 
 .actions .cancel {
-  color: #b42318;
-  background: #fff0ee;
+  color: var(--ink);
+  background: var(--coral);
 }
 
 .editor {
@@ -80,31 +80,32 @@
   margin-top: 20px;
   padding: 16px;
   border-radius: 8px;
-  background: #f7f9ff;
+  border: 2px solid var(--ink);
+  background: #fff6cf;
 }
 
 .editor label {
   display: grid;
   gap: 5px;
-  color: #39445b;
+  color: var(--ink);
   font-weight: 600;
 }
 
 .editor input {
   width: min(100%, 240px);
   padding: 8px 10px;
-  border: 1px solid #ccd3e0;
+  border: 2px solid var(--ink);
   border-radius: 7px;
   font: inherit;
 }
 
 .editor p {
   margin: 0;
-  color: #65708a;
+  color: var(--ink);
 }
 
 .error {
-  color: #b42318;
+  color: var(--error);
 }
 
 @media (max-width: 700px) {

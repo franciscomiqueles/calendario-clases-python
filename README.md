@@ -32,6 +32,12 @@ Proyecto en desarrollo. La base de Next.js, TypeScript, Prisma y las validacione
 
 2. Copia `.env.example` como `.env.local` y completa sus valores.
 
+`NEXT_PUBLIC_CALENDAR_URL` debe apuntar al enlace público completo de la
+profesora, por ejemplo `http://localhost:3000/calendar/ID_DE_LA_PROFESORA`
+en local o `https://tu-dominio.vercel.app/calendar/ID_DE_LA_PROFESORA` en
+producción. Ese valor alimenta el botón para que los alumnos agenden desde la
+página principal.
+
 3. Genera el cliente de Prisma:
 
    ```bash

@@ -1,10 +1,10 @@
 .card {
   margin-bottom: 24px;
   padding: 28px;
-  border: 1px solid #e1e6f0;
+  border: 2px solid var(--ink);
   border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 14px 40px rgb(34 49 84 / 7%);
+  background: var(--cream);
+  box-shadow: 6px 6px 0 var(--ink);
 }
 
 .header {
@@ -17,7 +17,7 @@
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #65708a;
+  color: var(--ink);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -26,7 +26,7 @@
 
 .header h2 {
   margin: 0;
-  color: #172033;
+  color: var(--coral);
   font-size: 1.35rem;
 }
 
@@ -34,7 +34,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #4b5872;
+  color: var(--ink);
   font-size: 0.85rem;
   white-space: nowrap;
 }
@@ -43,7 +43,8 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #3764d8;
+  background: var(--blue);
+  border: 2px solid var(--ink);
 }
 
 .calendar {
@@ -52,44 +53,45 @@
 
 .calendar :global(.fc) {
   min-width: 720px;
-  --fc-border-color: #e8ebf2;
-  --fc-button-bg-color: #3764d8;
-  --fc-button-border-color: #3764d8;
-  --fc-button-hover-bg-color: #2f56bb;
-  --fc-button-hover-border-color: #2f56bb;
-  --fc-today-bg-color: #f2f5ff;
+  --fc-border-color: rgb(23 23 23 / 25%);
+  --fc-button-bg-color: var(--yellow);
+  --fc-button-border-color: var(--ink);
+  --fc-button-hover-bg-color: var(--coral);
+  --fc-button-hover-border-color: var(--ink);
+  --fc-button-text-color: var(--ink);
+  --fc-today-bg-color: rgb(244 127 134 / 22%);
 }
 
 .calendar :global(.fc-toolbar-title) {
-  color: #172033;
+  color: var(--ink);
   font-size: 1.1rem;
 }
 
 .calendar :global(.fc-col-header-cell-cushion),
 .calendar :global(.fc-timegrid-slot-label-cushion) {
-  color: #65708a;
+  color: var(--ink);
   font-size: 0.8rem;
 }
 
 .calendar :global(.fc-event) {
-  border: 0;
+  border: 2px solid var(--ink);
   border-radius: 6px;
   padding: 2px 5px;
 }
 
 .unavailableEvent {
-  color: #8d2418 !important;
-  background: #ffd1ca !important;
+  color: var(--ink) !important;
+  background: var(--blue) !important;
 }
 
 .confirmedEvent {
-  color: #174b3a !important;
-  background: #bcebd3 !important;
+  color: var(--ink) !important;
+  background: var(--green) !important;
 }
 
 .error {
   margin: 0 0 16px;
-  color: #b42318;
+  color: var(--error);
   font-size: 0.9rem;
 }
 

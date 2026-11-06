@@ -1,6 +1,14 @@
 :root {
-  --background: #f5f7fb;
-  --foreground: #172033;
+  --background: #c7f9fa;
+  --foreground: #171717;
+  --ink: #171717;
+  --cream: #fffdf7;
+  --coral: #f47f86;
+  --yellow: #ffd75a;
+  --green: #8ed081;
+  --blue: #a9dde0;
+  --purple: #b9a7e8;
+  --error: #d94f58;
 }
 
 html {
@@ -18,8 +26,12 @@ body {
   display: flex;
   flex-direction: column;
   color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--background);
+  background-image:
+    linear-gradient(rgb(23 23 23 / 8%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(23 23 23 / 8%) 1px, transparent 1px);
+  background-size: 24px 24px;
+  font-family: var(--font-fredoka), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -41,13 +53,20 @@ input {
 }
 
 .secondary-action {
-  padding: 9px 14px;
-  border: 1px solid #ccd3e0;
-  border-radius: 8px;
-  color: #39445b;
-  background: #fff;
+  padding: 10px 15px;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  color: var(--ink);
+  background: var(--cream);
+  box-shadow: 3px 3px 0 var(--ink);
   cursor: pointer;
   font-weight: 700;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.secondary-action:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
 }
 
 button:focus-visible,
@@ -57,6 +76,11 @@ textarea:focus-visible,
 summary:focus-visible {
   outline: 3px solid #7c9cff;
   outline-offset: 3px;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (prefers-reduced-motion: reduce) {

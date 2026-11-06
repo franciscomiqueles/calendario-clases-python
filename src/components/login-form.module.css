@@ -10,15 +10,15 @@
   width: min(100%, 420px);
   gap: 16px;
   padding: 36px;
-  border: 1px solid #e1e6f0;
+  border: 2px solid var(--ink);
   border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 14px 40px rgb(34 49 84 / 7%);
+  background: var(--cream);
+  box-shadow: 6px 6px 0 var(--ink);
 }
 
 .eyebrow {
   margin: 0;
-  color: #65708a;
+  color: var(--ink);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -27,20 +27,21 @@
 
 .card h1 {
   margin: 0;
-  color: #172033;
+  color: var(--coral);
+  text-shadow: 2px 2px 0 var(--ink);
   font-size: 2rem;
 }
 
 .description {
   margin: -6px 0 8px;
-  color: #65708a;
+  color: var(--ink);
   line-height: 1.5;
 }
 
 .card label {
   display: grid;
   gap: 7px;
-  color: #39445b;
+  color: var(--ink);
   font-size: 0.9rem;
   font-weight: 600;
 }
@@ -48,24 +49,25 @@
 .card input {
   width: 100%;
   padding: 12px 14px;
-  border: 1px solid #ccd3e0;
+  border: 2px solid var(--ink);
   border-radius: 9px;
   color: #172033;
   font: inherit;
 }
 
 .card input:focus {
-  outline: 3px solid rgb(55 100 216 / 20%);
-  border-color: #3764d8;
+  outline: 3px solid rgb(255 215 90 / 50%);
+  border-color: var(--ink);
 }
 
 .card button {
   margin-top: 8px;
   padding: 13px 16px;
-  border: 0;
+  border: 2px solid var(--ink);
   border-radius: 9px;
-  color: #fff;
-  background: #3764d8;
+  color: var(--ink);
+  background: var(--yellow);
+  box-shadow: 3px 3px 0 var(--ink);
   cursor: pointer;
   font: inherit;
   font-weight: 700;
@@ -78,6 +80,6 @@
 
 .error {
   margin: 0;
-  color: #b42318;
+  color: var(--error);
   font-size: 0.9rem;
 }

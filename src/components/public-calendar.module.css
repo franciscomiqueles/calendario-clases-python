@@ -1,8 +1,7 @@
 .page {
   min-height: 100vh;
   padding: 48px clamp(16px, 5vw, 72px);
-  color: #172033;
-  background: #f5f7fb;
+  color: var(--ink);
 }
 
 .header,
@@ -34,21 +33,23 @@
 .header h1 {
   font-size: clamp(2rem, 5vw, 3.5rem);
   line-height: 1.05;
+  color: var(--coral);
+  text-shadow: 2px 2px 0 var(--ink);
 }
 
 .description {
   max-width: 620px;
   margin: 16px 0 0;
-  color: #65708a;
+  color: var(--ink);
   line-height: 1.6;
 }
 
 .card {
   overflow: hidden;
-  border: 1px solid #e1e6f0;
+  border: 2px solid var(--ink);
   border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 14px 40px rgb(34 49 84 / 7%);
+  background: var(--cream);
+  box-shadow: 6px 6px 0 var(--ink);
 }
 
 .cardHeader {
@@ -57,18 +58,20 @@
   justify-content: space-between;
   gap: 20px;
   padding: 28px 32px;
-  border-bottom: 1px solid #e8ebf2;
+  border-bottom: 2px solid var(--ink);
 }
 
 .card h2 {
   font-size: 1.4rem;
+  color: var(--coral);
 }
 
 .timezone {
   padding: 8px 12px;
+  border: 2px solid var(--ink);
   border-radius: 999px;
-  color: #4b5872;
-  background: #f0f3f8;
+  color: var(--ink);
+  background: var(--blue);
   font-size: 0.8rem;
   font-weight: 600;
 }
@@ -80,36 +83,37 @@
 
 .calendar :global(.fc) {
   min-width: 720px;
-  --fc-border-color: #e8ebf2;
-  --fc-button-bg-color: #3764d8;
-  --fc-button-border-color: #3764d8;
-  --fc-button-hover-bg-color: #2f56bb;
-  --fc-button-hover-border-color: #2f56bb;
-  --fc-today-bg-color: #f2f5ff;
+  --fc-border-color: rgb(23 23 23 / 25%);
+  --fc-button-bg-color: var(--yellow);
+  --fc-button-border-color: var(--ink);
+  --fc-button-hover-bg-color: var(--coral);
+  --fc-button-hover-border-color: var(--ink);
+  --fc-today-bg-color: rgb(244 127 134 / 22%);
+  --fc-button-text-color: var(--ink);
 }
 
 .calendar :global(.fc-highlight) {
-  background: #dce5ff;
+  background: rgb(255 215 90 / 60%);
 }
 
 .blockedEvent {
   border: 0 !important;
-  color: #8d2418 !important;
-  background: #ffd1ca !important;
+  color: var(--ink) !important;
+  background: var(--blue) !important;
 }
 
 .selectedEvent {
   border: 0 !important;
-  color: #1f3f91 !important;
-  background: #cbd8ff !important;
+  color: var(--ink) !important;
+  background: var(--yellow) !important;
 }
 
 .selection {
   display: grid;
   gap: 16px;
   padding: 20px 32px;
-  border-top: 1px solid #e8ebf2;
-  color: #39445b;
+  border-top: 2px solid var(--ink);
+  color: var(--ink);
 }
 
 .selection span {
@@ -132,12 +136,15 @@
   max-width: 620px;
   padding: 8px 10px;
   border-radius: 7px;
-  background: #f0f3f8;
+  border: 1px solid var(--ink);
+  background: var(--purple);
 }
 
 .selectedList button {
-  border: 0;
-  color: #b42318;
+  border: 2px solid var(--ink);
+  border-radius: 7px;
+  color: var(--ink);
+  background: var(--coral);
   background: transparent;
   cursor: pointer;
   font-weight: 700;
@@ -150,10 +157,10 @@
 
 .slotActions button {
   padding: 6px 9px;
-  border: 0;
+  border: 2px solid var(--ink);
   border-radius: 6px;
-  color: #3764d8;
-  background: #e8edff;
+  color: var(--ink);
+  background: var(--yellow);
   cursor: pointer;
   font-size: 0.8rem;
   font-weight: 700;
@@ -164,9 +171,9 @@
   gap: 12px;
   max-width: 620px;
   padding: 16px;
-  border: 1px solid #dce5ff;
+  border: 2px solid var(--ink);
   border-radius: 8px;
-  background: #f7f9ff;
+  background: #fff6cf;
 }
 
 .slotEditor label {
@@ -180,7 +187,7 @@
 .slotEditor input {
   width: min(100%, 240px);
   padding: 8px 10px;
-  border: 1px solid #ccd3e0;
+  border: 2px solid var(--ink);
   border-radius: 7px;
   font: inherit;
 }
@@ -208,19 +215,21 @@
 .requestForm textarea {
   width: min(100%, 480px);
   padding: 10px 12px;
-  border: 1px solid #ccd3e0;
+  border: 2px solid var(--ink);
   border-radius: 8px;
-  color: #172033;
+  color: var(--ink);
+  background: #fff;
   font: inherit;
 }
 
 .requestForm button {
   width: fit-content;
   padding: 11px 16px;
-  border: 0;
+  border: 2px solid var(--ink);
   border-radius: 8px;
-  color: #fff;
-  background: #3764d8;
+  color: var(--ink);
+  background: var(--yellow);
+  box-shadow: 3px 3px 0 var(--ink);
   cursor: pointer;
   font-weight: 700;
 }
@@ -234,17 +243,19 @@
 .noticeError {
   margin: 0;
   padding: 14px 32px;
+  border: 2px solid var(--ink);
   border-radius: 8px;
+  color: var(--ink);
 }
 
 .statusCard {
   max-width: 1180px;
   margin: 24px auto 0;
   padding: 28px 32px;
-  border: 1px solid #e1e6f0;
+  border: 2px solid var(--ink);
   border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 14px 40px rgb(34 49 84 / 7%);
+  background: var(--cream);
+  box-shadow: 6px 6px 0 var(--ink);
 }
 
 .statusCard h2 {
@@ -274,17 +285,18 @@
 .statusForm input {
   width: min(100%, 360px);
   padding: 10px 12px;
-  border: 1px solid #ccd3e0;
+  border: 2px solid var(--ink);
   border-radius: 8px;
   font: inherit;
 }
 
 .statusForm button {
   padding: 11px 16px;
-  border: 0;
+  border: 2px solid var(--ink);
   border-radius: 8px;
-  color: #fff;
-  background: #3764d8;
+  color: var(--ink);
+  background: var(--yellow);
+  box-shadow: 3px 3px 0 var(--ink);
   cursor: pointer;
   font-weight: 700;
 }
@@ -300,8 +312,9 @@
   margin-top: 20px;
   padding: 14px;
   border-radius: 8px;
-  color: #245c48;
-  background: #dff4e9;
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  background: var(--green);
 }
 
 .statusResult span {
@@ -309,13 +322,11 @@
 }
 
 .noticeSuccess {
-  color: #245c48;
-  background: #dff4e9;
+  background: var(--green);
 }
 
 .noticeError {
-  color: #b42318;
-  background: #fff0ee;
+  background: #ffd0d0;
 }
 
 .error,
