@@ -12,9 +12,20 @@ export default function Home() {
           <p className={styles.eyebrow}>Clases de programación</p>
           <h1>Aprende Python y Excel</h1>
         </div>
-        <a className={styles.teacherLink} href="/login">
-          Acceso de profesora
-        </a>
+        <div className={styles.actions}>
+          {publicCalendarUrl ? (
+            <a className={styles.studentLink} href={publicCalendarUrl}>
+              Agendar una clase
+            </a>
+          ) : (
+            <p className={styles.setupNotice}>
+              El enlace para agendar estará disponible próximamente.
+            </p>
+          )}
+          <a className={styles.teacherLink} href="/login">
+            Acceso de profesora
+          </a>
+        </div>
       </header>
 
       <main className={styles.main}>
@@ -36,15 +47,6 @@ export default function Home() {
               Clases de Python y Excel, presenciales u online, con una
               metodología cercana y adaptada a tus objetivos.
             </p>
-            {publicCalendarUrl ? (
-              <a className={styles.studentLink} href={publicCalendarUrl}>
-                Agendar una clase
-              </a>
-            ) : (
-              <p className={styles.setupNotice}>
-                El enlace para agendar estará disponible próximamente.
-              </p>
-            )}
             <div className={styles.highlights}>
               <span>Python</span>
               <span>Excel</span>

@@ -35,6 +35,14 @@
   text-shadow: 2px 2px 0 var(--ink);
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 .teacherLink,
 .studentLink {
   display: inline-flex;
@@ -49,8 +57,23 @@
   padding: 10px 14px;
   border: 2px solid var(--ink);
   color: var(--ink);
+  background: transparent;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.studentLink {
+  padding: 14px 20px;
+  border: 2px solid var(--ink);
+  color: var(--ink);
   background: var(--yellow);
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  font-size: 1.1rem;
+}
+
+.teacherLink:hover {
+  color: var(--coral);
 }
 
 .main {
@@ -106,18 +129,7 @@
   line-height: 1.55;
 }
 
-.studentLink {
-  width: fit-content;
-  padding: 14px 20px;
-  border: 2px solid var(--ink);
-  color: var(--ink);
-  background: var(--yellow);
-  box-shadow: 4px 4px 0 var(--ink);
-  font-size: 1.1rem;
-}
-
-.studentLink:hover,
-.teacherLink:hover {
+.studentLink:hover {
   transform: translate(2px, 2px);
   box-shadow: 1px 1px 0 var(--ink);
 }
@@ -156,6 +168,24 @@
 
   .header {
     margin-bottom: 28px;
+  }
+
+  .actions {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .studentLink {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .teacherLink {
+    align-self: flex-start;
+    padding: 4px 0;
+    border: 0;
+    box-shadow: none;
   }
 
   .hero {
