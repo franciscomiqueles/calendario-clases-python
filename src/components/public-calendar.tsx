@@ -464,7 +464,7 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
               left: "prev,next today",
               center: "title",
               right: isMobile
-                ? "dayGridMonth,timeGridDay"
+                ? "dayGridMonth,timeGridWeek,timeGridDay"
                 : "dayGridMonth,timeGridWeek,timeGridDay",
             }}
             locale="es"
