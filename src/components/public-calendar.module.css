@@ -116,6 +116,27 @@
   color: var(--ink);
 }
 
+.selectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.addSlotButton {
+  padding: 8px 10px;
+  border: 2px solid var(--ink);
+  border-radius: 7px;
+  color: var(--ink);
+  background: var(--blue);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.mobileHint {
+  display: none;
+}
+
 .selection span {
   color: #39445b;
 }
@@ -379,8 +400,29 @@
     padding: 20px 16px;
   }
 
+  .calendar {
+    overflow-x: auto;
+  }
+
+  .calendar :global(.fc) {
+    min-width: 720px;
+  }
+
+  .mobileHint {
+    display: block;
+    margin: 0;
+    padding: 0 16px 20px;
+    color: #39445b;
+    font-size: 0.9rem;
+  }
+
   .selection {
     padding: 20px 16px;
+  }
+
+  .selectionHeading {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .selection span {

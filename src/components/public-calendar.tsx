@@ -3,7 +3,7 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin from "@fullcalendar/interaction";
+import interactionPlugin, { type DateClickArg } from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import type { DateSelectArg, EventInput } from "@fullcalendar/core";
 
@@ -14,6 +14,7 @@ import {
   dateInTimeZone,
   getScheduleWindow,
   intervalsOverlap,
+  isWithinScheduleWindow,
 } from "@/lib/scheduling";
 
 type ScheduleResponse = {
@@ -92,8 +93,13 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
   const [requestStatus, setRequestStatus] = useState<RequestStatus | null>(null);
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [error, setError] = useState("");
   const adjustingSelection = useRef(false);
+  const allowAdditionalMobileSlotRef = useRef(false);
+  const lastMobileSelection = useRef<{ startAt: number; timestamp: number } | null>(
+    null,
+  );
   const noticeRef = useRef<HTMLParagraphElement>(null);
   const today = dateInTimeZone(new Date(), schedule?.timezone ?? DEFAULT_TIMEZONE);
 
@@ -120,31 +126,32 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
     }
   }, [error, submitted]);
 
-  function handleSelect(info: DateSelectArg) {
-    if (adjustingSelection.current) {
-      adjustingSelection.current = false;
-      return;
-    }
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 700px)");
+    const updateIsMobile = () => setIsMobile(mediaQuery.matches);
+    updateIsMobile();
+    mediaQuery.addEventListener("change", updateIsMobile);
+    return () => mediaQuery.removeEventListener("change", updateIsMobile);
+  }, []);
 
+  function addSlot(start: Date, allowMultiple: boolean): boolean {
     const automaticEnd = new Date(
-      info.start.getTime() + CLASS_DURATION_MINUTES * 60_000,
+      start.getTime() + CLASS_DURATION_MINUTES * 60_000,
     );
-    const window = getScheduleWindow(info.start, schedule?.timezone);
-    const dayEnd = new Date(info.start);
-    dayEnd.setHours(window.endHour, window.endMinute, 0, 0);
+    const interval = { startAt: start, endAt: automaticEnd };
+    const alreadySelected = selectedSlots.some(
+      (slot) => slot.start.getTime() === start.getTime(),
+    );
 
-    if (automaticEnd > dayEnd) {
-      info.view.calendar.unselect();
-      setSelectedSlots([]);
-      setError(
-        `Ese inicio no permite completar una clase antes de las ${String(
-          window.endHour,
-        ).padStart(2, "0")}:${String(window.endMinute).padStart(2, "0")}.`,
-      );
-      return;
+    if (allowMultiple && alreadySelected) {
+      return false;
     }
 
-    const interval = { startAt: info.start, endAt: automaticEnd };
+    if (!isWithinScheduleWindow(interval, schedule?.timezone)) {
+      setError("Ese inicio no permite completar una clase dentro del horario disponible.");
+      return false;
+    }
+
     const unavailable = [
       ...(schedule?.unavailability ?? []),
       ...(schedule?.classes ?? []),
@@ -159,14 +166,60 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
     );
 
     if (unavailable || selectedConflict) {
-      info.view.calendar.unselect();
       setError(
         unavailable
           ? "Ese horario no está disponible."
           : "Ese horario se solapa con otra selección.",
       );
+      return false;
+    }
+
+    setSelectedSlots((current) => {
+      const next = allowMultiple
+        ? [...current, { id: `${start.getTime()}`, start, end: automaticEnd }]
+        : [{ id: `${start.getTime()}`, start, end: automaticEnd }];
+      return next.sort(
+        (first, second) => first.start.getTime() - second.start.getTime(),
+      );
+    });
+    setSubmitted(false);
+    setError("");
+    return true;
+  }
+
+  function handleDateClick(info: DateClickArg) {
+    if (info.allDay) {
       return;
     }
+
+    const now = Date.now();
+    const previousSelection = lastMobileSelection.current;
+    if (
+      previousSelection &&
+      previousSelection.startAt === info.date.getTime() &&
+      now - previousSelection.timestamp < 500
+    ) {
+      return;
+    }
+
+    lastMobileSelection.current = {
+      startAt: info.date.getTime(),
+      timestamp: now,
+    };
+    const allowMultiple = allowAdditionalMobileSlotRef.current;
+    allowAdditionalMobileSlotRef.current = false;
+    addSlot(info.date, allowMultiple);
+  }
+
+  function handleSelect(info: DateSelectArg) {
+    if (adjustingSelection.current) {
+      adjustingSelection.current = false;
+      return;
+    }
+
+    const automaticEnd = new Date(
+      info.start.getTime() + CLASS_DURATION_MINUTES * 60_000,
+    );
 
     if (info.end.getTime() !== automaticEnd.getTime()) {
       adjustingSelection.current = true;
@@ -176,22 +229,9 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
       });
     }
 
-    setSelectedSlots((current) => {
-      if (current.some((slot) => slot.start.getTime() === info.start.getTime())) {
-        return current;
-      }
-
-      return [
-        ...current,
-        {
-          id: `${info.start.getTime()}`,
-          start: info.start,
-          end: automaticEnd,
-        },
-      ].sort((first, second) => first.start.getTime() - second.start.getTime());
-    });
-    setSubmitted(false);
-    setError("");
+    if (!addSlot(info.start, true)) {
+      info.view.calendar.unselect();
+    }
   }
 
   async function handleRequest(event: FormEvent<HTMLFormElement>) {
@@ -417,19 +457,23 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
         </div>
         <div className={styles.calendar}>
           <FullCalendar
+            key={isMobile ? "mobile-calendar" : "desktop-calendar"}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="timeGridWeek"
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay",
+              right: isMobile
+                ? "dayGridMonth,timeGridDay"
+                : "dayGridMonth,timeGridWeek,timeGridDay",
             }}
             locale="es"
             firstDay={1}
             allDaySlot={false}
-            selectable
-            selectMirror
-            select={handleSelect}
+            selectable={!isMobile}
+            selectMirror={!isMobile}
+            select={!isMobile ? handleSelect : undefined}
+            dateClick={isMobile ? handleDateClick : undefined}
             selectOverlap={false}
             slotMinTime="08:00:00"
             slotMaxTime="23:00:00"
@@ -466,9 +510,28 @@ export function PublicCalendar({ teacherId }: { teacherId: string }) {
             }}
           />
         </div>
+        {isMobile && (
+          <p className={styles.mobileHint}>
+            Toca una hora para seleccionarla. Para agregar otra, usa
+            &quot;Agregar otro horario&quot;.
+          </p>
+        )}
         {selectedSlots.length > 0 && (
           <div className={styles.selection}>
-            <strong>Horarios seleccionados ({selectedSlots.length})</strong>
+            <div className={styles.selectionHeading}>
+              <strong>Horarios seleccionados ({selectedSlots.length})</strong>
+              {isMobile && (
+                <button
+                  type="button"
+                  className={styles.addSlotButton}
+                  onClick={() => {
+                    allowAdditionalMobileSlotRef.current = true;
+                  }}
+                >
+                  Agregar otro horario
+                </button>
+              )}
+            </div>
             <ul className={styles.selectedList}>
               {selectedSlots.map((slot) => (
                 <li key={slot.id}>
