@@ -97,6 +97,32 @@
   background: var(--coral);
 }
 
+.reviewImages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.reviewImage {
+  display: grid;
+  gap: 6px;
+}
+
+.reviewImage img,
+.preview {
+  width: 180px;
+  max-height: 220px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.preview {
+  display: block;
+  margin: 8px 0;
+}
+
 .error {
   color: var(--error);
 }

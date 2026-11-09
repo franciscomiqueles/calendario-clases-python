@@ -32,6 +32,10 @@ Proyecto en desarrollo. La base de Next.js, TypeScript, Prisma y las validacione
 
 2. Copia `.env.example` como `.env.local` y completa sus valores.
 
+Para subir screenshots desde el panel de la profesora, crea un Blob Store en
+Vercel y agrega su `BLOB_READ_WRITE_TOKEN` en `.env.local`. El token es
+privado y no debe subirse al repositorio.
+
 `NEXT_PUBLIC_CALENDAR_URL` debe apuntar al enlace público completo de la
 profesora, por ejemplo `http://localhost:3000/calendar/ID_DE_LA_PROFESORA`
 en local o `https://tu-dominio.vercel.app/calendar/ID_DE_LA_PROFESORA` en

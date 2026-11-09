@@ -32,3 +32,28 @@ export const bookingRequestSchema = z.object({
     .max(500, "El comentario no puede superar los 500 caracteres.")
     .optional(),
 });
+
+export const reviewSchema = z.object({
+  studentName: z
+    .string()
+    .trim()
+    .max(80, "El nombre no puede superar los 80 caracteres.")
+    .optional()
+    .or(z.literal("")),
+  rating: z.coerce
+    .number()
+    .int("La calificación debe ser un número entero.")
+    .min(1, "La calificación mínima es 1.")
+    .max(5, "La calificación máxima es 5."),
+  comment: z
+    .string()
+    .trim()
+    .min(1, "El comentario es obligatorio.")
+    .max(800, "El comentario no puede superar los 800 caracteres."),
+  topic: z
+    .string()
+    .trim()
+    .min(1, "Indica el curso o tema de la clase.")
+    .max(120, "El tema no puede superar los 120 caracteres."),
+  website: z.string().max(0, "Solicitud inválida.").optional(),
+});

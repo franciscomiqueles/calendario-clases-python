@@ -1,9 +1,12 @@
 import Image from "next/image";
 
 import styles from "./page.module.css";
+import { PublicReviews } from "@/components/public-reviews";
+import { PublicStudentMessages } from "@/components/public-student-messages";
 
 export default function Home() {
   const publicCalendarUrl = process.env.NEXT_PUBLIC_CALENDAR_URL;
+  const teacherId = publicCalendarUrl?.split("/").pop();
 
   return (
     <div className={styles.page}>
@@ -55,6 +58,8 @@ export default function Home() {
           </div>
         </section>
       </main>
+      {teacherId && <PublicReviews teacherId={teacherId} />}
+      {teacherId && <PublicStudentMessages teacherId={teacherId} />}
     </div>
   );
 }

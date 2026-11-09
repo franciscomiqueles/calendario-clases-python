@@ -49,3 +49,6 @@ next-env.d.ts
 .cache/
 .turbo/
 .eslintcache
+
+# local continuation context
+CONTINUATION_PROMPT.md

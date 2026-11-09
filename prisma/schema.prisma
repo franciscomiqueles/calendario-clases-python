@@ -17,17 +17,25 @@ enum ClassStatus {
   CANCELLED
 }
 
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
-  id           String               @id @default(cuid())
-  name         String
-  email        String               @unique
-  passwordHash String
-  timezone     String               @default("America/Santiago")
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
+  id             String                 @id @default(cuid())
+  name           String
+  email          String                 @unique
+  passwordHash   String
+  timezone       String                 @default("America/Santiago")
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
   unavailability UnavailabilityWindow[]
   requests       BookingRequest[]
   classes        ScheduledClass[]
+  reviews        Review[]
+  messages       StudentMessage[]
 }
 
 model UnavailabilityWindow {
@@ -43,40 +51,68 @@ model UnavailabilityWindow {
 }
 
 model BookingRequest {
-  id              String        @id @default(cuid())
-  trackingToken   String        @unique @default(cuid())
+  id              String          @id @default(cuid())
+  trackingToken   String          @unique @default(cuid())
   teacherId       String
   studentName     String
   studentEmail    String?
-  studentPhone    String               @default("")
+  studentPhone    String          @default("")
   requestedStart  DateTime
   requestedEnd    DateTime
   comment         String?
-  status          RequestStatus @default(PENDING)
+  status          RequestStatus   @default(PENDING)
   rejectionReason String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  teacher         User          @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  teacher         User            @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   scheduledClass  ScheduledClass?
 
   @@index([teacherId, status, requestedStart])
 }
 
 model ScheduledClass {
-  id         String      @id @default(cuid())
-  teacherId  String
-  requestId  String      @unique
-  studentName String
+  id           String         @id @default(cuid())
+  teacherId    String
+  requestId    String         @unique
+  studentName  String
   studentEmail String?
-  studentPhone String               @default("")
-  startAt    DateTime
-  endAt      DateTime
-  status     ClassStatus @default(CONFIRMED)
-  privateNote String?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  teacher    User        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  request    BookingRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  studentPhone String         @default("")
+  startAt      DateTime
+  endAt        DateTime
+  status       ClassStatus    @default(CONFIRMED)
+  privateNote  String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  teacher      User           @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  request      BookingRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
 
   @@index([teacherId, status, startAt])
+}
+
+model Review {
+  id          String        @id @default(cuid())
+  teacherId   String
+  studentName String?
+  rating      Int
+  comment     String
+  topic       String
+  consentAt   DateTime?
+  status      ReviewStatus  @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  teacher     User          @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId, status, createdAt])
+}
+
+model StudentMessage {
+  id        String   @id @default(cuid())
+  teacherId String
+  url       String
+  pathname  String
+  altText   String
+  createdAt DateTime @default(now())
+  teacher   User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId, createdAt])
 }

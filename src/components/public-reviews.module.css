@@ -1,0 +1,34 @@
+.section {
+  max-width: 1180px;
+  margin: 32px auto 0;
+  padding: clamp(24px, 5vw, 48px);
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+  background: var(--cream);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.heading { display: flex; justify-content: space-between; gap: 20px; }
+.eyebrow { margin: 0 0 8px; color: #65708a; font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.heading h2 { margin: 0; color: var(--coral); font-size: clamp(1.7rem, 4vw, 2.8rem); text-shadow: 2px 2px 0 var(--ink); }
+.sticker { padding: 10px 14px; border: 2px solid var(--ink); border-radius: 999px; background: var(--yellow); white-space: nowrap; }
+.list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 24px; }
+.review { padding: 18px; border: 2px solid var(--ink); border-radius: 12px; background: var(--blue); }
+.review p { margin: 10px 0; line-height: 1.5; }
+.review strong, .review span { display: block; }
+.review span { margin-top: 4px; color: #39445b; font-size: .9rem; }
+.images { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-top: 12px; }
+.images img { width: 100%; max-height: 180px; border: 2px solid var(--ink); border-radius: 8px; object-fit: cover; }
+.stars { color: #9c5a00; letter-spacing: .08em; }
+.formCard { margin-top: 24px; padding-top: 20px; border-top: 2px solid rgb(23 23 23 / 25%); }
+.formCard summary { cursor: pointer; color: var(--coral); font-weight: 700; }
+.formCard form { display: grid; gap: 12px; max-width: 620px; margin-top: 16px; }
+.formCard label { display: grid; gap: 6px; color: #39445b; font-weight: 600; }
+.formCard input:not([type="checkbox"]), .formCard select, .formCard textarea { width: 100%; padding: 10px 12px; border: 2px solid var(--ink); border-radius: 8px; font: inherit; }
+.consent { display: flex !important; grid-template-columns: auto 1fr; align-items: center; }
+.consent input { width: 18px; height: 18px; }
+.formCard button { width: fit-content; padding: 11px 16px; border: 2px solid var(--ink); border-radius: 8px; background: var(--yellow); box-shadow: 3px 3px 0 var(--ink); cursor: pointer; font-weight: 700; }
+.success { color: #176b3a; }
+.error { color: #b42318; }
+.honeypot { position: absolute; left: -10000px; }
+@media (max-width: 600px) { .heading { align-items: flex-start; flex-direction: column; } }

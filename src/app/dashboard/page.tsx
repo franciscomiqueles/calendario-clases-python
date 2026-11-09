@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 
 import { authOptions } from "@/lib/auth";
 import { AvailabilityManager } from "@/components/availability-manager";
@@ -8,9 +9,12 @@ import { CalendarView } from "@/components/calendar-view";
 import { RequestManager } from "@/components/request-manager";
 import { ClassManager } from "@/components/class-manager";
 import { SignOutButton } from "@/components/sign-out-button";
+import { ReviewManager } from "@/components/review-manager";
+import { StudentMessageManager } from "@/components/student-message-manager";
 import styles from "./dashboard.module.css";
 
 async function DashboardContent() {
+  await connection();
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -37,6 +41,8 @@ async function DashboardContent() {
       <RequestManager />
       <ClassManager />
       <AvailabilityManager />
+      <ReviewManager />
+      <StudentMessageManager />
     </main>
   );
 }
