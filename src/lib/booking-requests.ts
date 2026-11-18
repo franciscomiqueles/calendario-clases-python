@@ -159,7 +159,7 @@ export async function deleteExpiredAcceptedBookings(teacherId: string) {
       where: {
         teacherId,
         status: "ACCEPTED",
-        requestedStart: { lt: cutoff },
+        scheduledClass: null,
       },
     });
   });
